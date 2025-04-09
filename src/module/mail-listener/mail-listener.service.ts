@@ -16,9 +16,9 @@ export class MailListenerService implements OnModuleInit {
     ) { }
     startListening() {
         this.imap = new Imap({
-            user: 'helpdesk@tigabersama.co.id',
-            password: 'secure2025',
-            host: 'dhaulagiri.iixcp.rumahweb.net',
+            user: 'dummy@email',
+            password: 'password',
+            host: 'host',
             port: 993,
             tls: true,
         });
