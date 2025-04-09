@@ -15,7 +15,8 @@ export class WhatsappService implements OnModuleInit {
     private client: any;
 
     async onModuleInit() {
-        this.connectToWhatsApp();
+        // TIDAK DIGUNAKAN DULU
+        // this.connectToWhatsApp();
     }
 
     async connectToWhatsApp() {

@@ -285,15 +285,15 @@ export class TicketService {
         // create data ticket assignment
         await this.assignment.createFromSchedule(newTicket.id, isFromAgent ? getNewTicket.fungsi.id : user.fungsi?.id ?? null)
 
-        const messageBuilder = "*HELPDESK IT*\n\n" +
-            "Laporan Baru!\n" +
-            `dari\t\t\t: ${isFromAgent ? getNewTicket.userOrderer.name : user.name} (${(isFromAgent ? getNewTicket.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
-            `Subjek\t\t: ${subject} \n` +
-            `Keterangan\t: ${message} \n\n` +
-            "Mohon Segera Diproses!"
+        // const messageBuilder = "*HELPDESK IT*\n\n" +
+        //     "Laporan Baru!\n" +
+        //     `dari\t\t\t: ${isFromAgent ? getNewTicket.userOrderer.name : user.name} (${(isFromAgent ? getNewTicket.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
+        //     `Subjek\t\t: ${subject} \n` +
+        //     `Keterangan\t: ${message} \n\n` +
+        //     "Mohon Segera Diproses!"
 
-        // Send Notification
-        this.notification.sendMessageToAgent(fungsiId, messageBuilder);
+        // Send Notification !! tidak digunakan dulu
+        // this.notification.sendMessageToAgent(fungsiId, messageBuilder);
         return newTicket;
     }
 

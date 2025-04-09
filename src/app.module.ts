@@ -23,6 +23,7 @@ import { TicketHistoryModule } from './module/ticket-history/ticket-history.modu
 import { TicketAssignmentModule } from './module/ticket-assignment/ticket-assignment.module';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
+import { MailListenerService } from './module/mail-listener/mail-listener.service';
 
 @Module({
   imports: [
@@ -58,7 +59,8 @@ import { ConfigModule } from '@nestjs/config';
     TicketHistoryModule,
     TicketAssignmentModule
   ],
-  controllers: [AppController]
+  controllers: [AppController],
+  providers: [MailListenerService]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

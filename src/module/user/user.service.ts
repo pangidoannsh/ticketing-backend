@@ -31,6 +31,16 @@ export class UserService implements OnModuleInit {
                 })
                 return this.userRepository.save(newUser);
             }
+            if (totalUser < 2) {
+                const phone = 'mail-system';
+                const name = 'Mail System'
+                const level = 'supervisor';
+                const rawPassword = '123456';
+                const newUser = this.userRepository.create({
+                    phone, name, password: encodePassword(rawPassword), level
+                })
+                return this.userRepository.save(newUser);
+            }
         } catch (e) {
             console.log('Supervisor created on phone 0811');
 
