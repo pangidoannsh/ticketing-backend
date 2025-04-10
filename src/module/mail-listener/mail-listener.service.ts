@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import { TicketService } from '../ticket/ticket.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailListenerService implements OnModuleInit {
@@ -12,16 +13,20 @@ export class MailListenerService implements OnModuleInit {
     }
 
     constructor(
-        private readonly ticketService: TicketService
+        private readonly ticketService: TicketService,
+        private readonly configService: ConfigService
     ) { }
     startListening() {
-        this.imap = new Imap({
-            user: 'dummy@email',
-            password: 'password',
-            host: 'host',
-            port: 993,
-            tls: true,
-        });
+        const config: Imap.Config = {
+            user: this.configService.get<string>('MAIL_USER'),
+            password: this.configService.get<string>('MAIL_PASS'),
+            host: this.configService.get<string>('MAIL_HOST'),
+            port: Number(this.configService.get<number>('MAIL_PORT')),
+            tls: this.configService.get<boolean>('MAIL_TLS'),
+        }
+        console.log(config);
+
+        this.imap = new Imap(config);
 
         this.imap.once('ready', () => {
             console.log('✅ IMAP connection ready');
@@ -73,6 +78,7 @@ export class MailListenerService implements OnModuleInit {
             const fetch = this.imap.fetch(latest, {
                 bodies: '',
                 struct: true,
+                markSeen: true
             });
 
             fetch.on('message', (msg, seqno) => {
