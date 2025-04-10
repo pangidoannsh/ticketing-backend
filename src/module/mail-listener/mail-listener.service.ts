@@ -24,8 +24,6 @@ export class MailListenerService implements OnModuleInit {
             port: Number(this.configService.get<number>('MAIL_PORT')),
             tls: this.configService.get<boolean>('MAIL_TLS'),
         }
-        console.log(config);
-
         this.imap = new Imap(config);
 
         this.imap.once('ready', () => {
@@ -107,6 +105,14 @@ export class MailListenerService implements OnModuleInit {
                             userOrdererId: "1",
                             priority: "low"
                         }, null, true)
+
+                        this.imap.addFlags(seqno, '\\Seen', (err) => {
+                            if (err) {
+                                console.error('❌ Error marking as seen:', err);
+                            } else {
+                                console.log(`✅ Message #${seqno} marked as SEEN`);
+                            }
+                        });
                     } catch (err) {
                         console.error('❌ Parsing error:', err);
                     }
