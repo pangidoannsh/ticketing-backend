@@ -53,3 +53,8 @@ app.module.ts merupakan file untuk melakukan konfigurasi koneksi database serta 
 untuk melakukan konfigurasi koneksi database, lakukan perubahan  pada function TypeOrmModule,forRoot({}), dengan mengubah nama host, username, password, dan nama dari database.
 
 ![Screenshot_30](https://github.com/pangidoannsh/helpdesk_api/assets/74215225/ee87b769-493e-428f-9f02-459421c34bea)
+
+## Environment
+buat file .env dengan isi env sesuai dengan .env.example
+
+
