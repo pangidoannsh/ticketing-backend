@@ -19,6 +19,15 @@ export class CreateTicketDTO {
     userOrdererId: string;
 }
 
+export class CreateTicketWithoutTicketDTO {
+    @IsNotEmpty()
+    subject: string;
+    from: string;
+    @IsNotEmpty()
+    body: string;
+    receivedTime: string;
+}
+
 export class TicketFilterDTO {
     subject: string;
     category: string;

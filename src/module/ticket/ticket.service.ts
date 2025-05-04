@@ -2,7 +2,7 @@ import { HttpException, Injectable, NotAcceptableException } from '@nestjs/commo
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
-import { CreateTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, CreateTicketWithoutTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketMessageService } from '../ticket-message/ticket-message.service';
 import { getExpiredDate } from 'src/utils/date';
 import { NotificationService } from '../notification/notification.service';
@@ -257,7 +257,7 @@ export class TicketService {
      * @returns 
      */
     async store(payload: CreateTicketDTO, user: any, isFromAgent?: boolean, fileUploadName?: string) {
-        const { subject, category, priority, fungsiId, message, userOrdererId } = payload;
+        const { subject, category, priority, fungsiId, userOrdererId } = payload;
 
         // untuk mengecek apakah user yang membuat tiket memiliki fungsi atau tidak
         if (fungsiId === -1 || fungsiId === null) {
@@ -284,19 +284,33 @@ export class TicketService {
 
         // create data ticket assignment
         await this.assignment.createFromSchedule(newTicket.id, isFromAgent ? getNewTicket.fungsi.id : user.fungsi?.id ?? null)
-
-        // const messageBuilder = "*HELPDESK IT*\n\n" +
-        //     "Laporan Baru!\n" +
-        //     `dari\t\t\t: ${isFromAgent ? getNewTicket.userOrderer.name : user.name} (${(isFromAgent ? getNewTicket.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
-        //     `Subjek\t\t: ${subject} \n` +
-        //     `Keterangan\t: ${message} \n\n` +
-        //     "Mohon Segera Diproses!"
-
-        // Send Notification !! tidak digunakan dulu
-        // this.notification.sendMessageToAgent(fungsiId, messageBuilder);
         return newTicket;
     }
 
+    async storeWithoutTicket(payload: CreateTicketWithoutTicketDTO) {
+        const { subject, body, from } = payload;
+
+        const getTicketExpired = this.config.config.ticketDeadline;
+
+        const createTicket = this.ticketRepository.create({
+            subject: subject,
+            category: { id: 1 },
+            userOrderer: { id: 1 },
+            priority: "high",
+            fungsi: { id: 1 },
+            expiredAt: getExpiredDate(getTicketExpired),
+            userEmail: from
+        });
+        // create new Ticket
+        const newTicket = await this.ticketRepository.save(createTicket);
+
+        // create new message of ticket
+        await this.messageService.store(body, newTicket.id, { id: 1 });
+
+        // create data ticket assignment
+        await this.assignment.createFromSchedule(newTicket.id, 1)
+        return newTicket;
+    }
     /**
      * memperbarui status dari tiket
      * @param id 
@@ -324,23 +338,23 @@ export class TicketService {
             .addSelect(['user.phone'])
             .getOne()
 
-        if (status !== 'expired') {
-            let messageBuilder = ''
-            switch (status) {
-                case 'process':
-                    messageBuilder = "*HELPDESK IT*\n\n" +
-                        "Laporan anda sedang DIPROSES!";
-                    break;
-                case 'feedback':
-                    messageBuilder = "*HELPDESK IT*\n\n" +
-                        "Laporan anda sudah Selesai diproses, mohon untuk memberikan FEEDBACK,\nTerimakasih!"
-                    break;
-                default:
-                    messageBuilder = "*HELPDESK IT*\n\n" +
-                        "Terimkasih telah mengisi FEEDBACK";
-            }
-            this.notification.sendMessageToTicketOrderer(result.userOrderer.phone, messageBuilder)
-        }
+        // if (status !== 'expired') {
+        //     let messageBuilder = ''
+        //     switch (status) {
+        //         case 'process':
+        //             messageBuilder = "*HELPDESK IT*\n\n" +
+        //                 "Laporan anda sedang DIPROSES!";
+        //             break;
+        //         case 'feedback':
+        //             messageBuilder = "*HELPDESK IT*\n\n" +
+        //                 "Laporan anda sudah Selesai diproses, mohon untuk memberikan FEEDBACK,\nTerimakasih!"
+        //             break;
+        //         default:
+        //             messageBuilder = "*HELPDESK IT*\n\n" +
+        //                 "Terimkasih telah mengisi FEEDBACK";
+        //     }
+        //     this.notification.sendMessageToTicketOrderer(result.userOrderer.phone, messageBuilder)
+        // }
 
         return result;
     }

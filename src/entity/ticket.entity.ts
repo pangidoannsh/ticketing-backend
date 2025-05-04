@@ -24,6 +24,9 @@ export class Ticket {
     @ManyToOne(() => User, user => user.ticketOrderer, { eager: true })
     userOrderer: User
 
+    @Column({ nullable: true })
+    userEmail: string
+
     @ManyToOne(() => Category, category => category.ticket, { eager: true, onDelete: 'CASCADE' })
     category: Category
 

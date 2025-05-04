@@ -6,7 +6,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateTicketDTO, EditTicketDTO, EditTicketStatusDTO, FileSizeValidationPipe, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, CreateTicketWithoutTicketDTO, EditTicketDTO, EditTicketStatusDTO, FileSizeValidationPipe, TicketFilterDTO } from './ticket.dto';
 import { TicketService } from './ticket.service';
 import { diskStorage } from 'multer';
 import { editFileName } from './file.helper';
@@ -69,6 +69,18 @@ export class TicketController {
         }
 
     }
+
+    @Post("without-token")
+    @UsePipes(ValidationPipe)
+    async createWithoutToken(
+        @Req() req: any,
+        @Body() payload: CreateTicketWithoutTicketDTO,
+        @Res() res: Response,
+    ) {
+        const newTicket = await this.ticketService.storeWithoutTicket(payload);
+        res.status(201).send(newTicket)
+    }
+
     @Delete(':id')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard('supervisor'))
